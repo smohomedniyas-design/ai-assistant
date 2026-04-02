@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Niyas's AI Assistant</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; margin: 0; display: flex; flex-direction: column; height: 100vh; }
+        #chat-container { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
+        .message { max-width: 80%; padding: 12px; border-radius: 15px; line-height: 1.4; }
+        .user { align-self: flex-end; background-color: #0084ff; color: white; }
+        .ai { align-self: flex-start; background-color: #e4e6eb; color: black; }
+        .input-area { background: white; padding: 20px; display: flex; gap: 10px; border-top: 1px solid #ddd; }
+        input { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 25px; outline: none; }
+        button { background: #0084ff; color: white; border: none; padding: 10px 20px; border-radius: 25px; cursor: pointer; font-weight: bold; }
+        button:hover { background: #0073e6; }
+    </style>
+</head>
+<body>
+    <div id="chat-container">
+        <div class="message ai">Hello! I'm your AI Assistant. How can I help you today?</div>
+    </div>
+    <div class="input-area">
+        <input type="text" id="userInput" placeholder="Type a message...">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <script>
+        async function sendMessage() {
+            const input = document.getElementById('userInput');
+            const container = document.getElementById('chat-container');
+            const message = input.value.trim();
+            if (!message) return;
+
+            // Add user message to screen
+            container.innerHTML += `<div class="message user">${message}</div>`;
+            input.value = '';
+            container.scrollTop = container.scrollHeight;
+
+            try {
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: message })
+                });
+                const data = await response.json();
+                container.innerHTML += `<div class="message ai">${data.reply}</div>`;
+            } catch (err) {
+                container.innerHTML += `<div class="message ai" style="color: red;">Error: Could not connect to AI.</div>`;
+            }
+            container.scrollTop = container.scrollHeight;
+        }
+    </script>
+</body>
+</html>
